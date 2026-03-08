@@ -1,15 +1,14 @@
 ﻿import sys
 import openpyxl
+from openpyxl.styles import Font
 import os
 
 def write_to_excel(file_path, sheet_name, cell_ref, value):
     try:
         if os.path.exists(file_path):
             wb = openpyxl.load_workbook(file_path)
-            print(f"📂 Opened existing file: {file_path}")
         else:
             wb = openpyxl.Workbook()
-            print(f"✨ Created new file: {file_path}")
             
         if sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
@@ -19,7 +18,6 @@ def write_to_excel(file_path, sheet_name, cell_ref, value):
                 ws.title = sheet_name
             else:
                 ws = wb.create_sheet(title=sheet_name)
-            print(f"📑 Selected/Created sheet: {sheet_name}")
 
         final_value = value
         if not str(value).startswith('='):
@@ -29,9 +27,17 @@ def write_to_excel(file_path, sheet_name, cell_ref, value):
             except ValueError:
                 pass
 
-        ws[cell_ref] = final_value
+        # Write value
+        target_cell = ws[cell_ref]
+        target_cell.value = final_value
+        
+        # --- [CRITICAL] Apply Thai Sarabun Font ---
+        thai_font = Font(name='TH SarabunPSK', size=16)
+        target_cell.font = thai_font
+        # ------------------------------------------
+        
         wb.save(file_path)
-        print(f"✅ Successfully wrote '{value}' to [{sheet_name}]{cell_ref}")
+        print(f"✅ Successfully wrote '{value}' to [{sheet_name}]{cell_ref} with TH SarabunPSK 16pt")
         
     except Exception as e:
         print(f"❌ Error writing to Excel: {str(e)}")
